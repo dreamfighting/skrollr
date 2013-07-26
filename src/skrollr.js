@@ -274,7 +274,9 @@
 		//Triggers parsing of elements and a first reflow.
 		_instance.refresh();
 
-		_addEvent(window, 'resize orientationchange', _reflow);
+		_addEvent(window, 'resize orientationchange', function() {
+			_requestReflow = true;
+		});
 
 		var requestAnimFrame = polyfillRAF();
 
@@ -863,6 +865,11 @@
 	 * Renders all elements.
 	 */
 	var _render = function() {
+		if(_requestReflow) {
+			_requestReflow = false;
+			_reflow();
+		}
+
 		//We may render something else than the actual scrollbar position.
 		var renderTop = _instance.getScrollTop();
 
@@ -1454,6 +1461,9 @@
 	var _skrollableIdCounter = 0;
 
 	var _edgeStrategy;
+
+	//Let the render loop know that we want a reflow.
+	var _requestReflow = false;
 
 
 	//Mobile specific vars. Will be stripped by UglifyJS when not in use.
